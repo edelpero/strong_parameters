@@ -10,8 +10,18 @@ module StrongParameters
 
     initializer "strong_parameters.config", :before => "action_controller.set_configs" do |app|
       ActionController::Parameters.action_on_unpermitted_parameters = app.config.action_controller.delete(:action_on_unpermitted_parameters) do
-        (Rails.env.test? || Rails.env.development?) ? :log : false
+        raise_on_development || log_on_test || false
       end
     end
+
+    private
+
+      def raise_on_development
+        :raise if Rails.env.development?
+      end
+
+      def log_on_test
+        :log if Rails.env.test?
+      end
   end
 end
